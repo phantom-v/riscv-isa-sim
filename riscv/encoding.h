@@ -204,14 +204,14 @@
 #define IRQ_HOST     13
 
 #define DEFAULT_RSTVEC     0x00001000
-#define CLINT_BASE         0x02000000
-#define CLINT_SIZE         0x000c0000
+#define CLINT_BASE         0x38000000
+#define CLINT_SIZE         0x00010000
 #define EXT_IO_BASE        0x40000000
 #define DRAM_BASE          0x80000000
 
-#define UART_BASE          0x10000000
-#define UART_SIZE          0x00000100
-#define PLIC_BASE          0x0C000000
+#define UART_BASE          0x41000000
+#define UART_SIZE          0x00100000
+#define PLIC_BASE          0x3c000000
 #define PLIC_SIZE          0x04000000
 #define PLIC_MAX_SRC       32
 #define PLIC_MAX_PRIO      7
