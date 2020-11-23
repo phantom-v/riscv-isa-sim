@@ -74,7 +74,7 @@ bool uart_t::load(reg_t addr, size_t len, uint8_t* bytes) {
         printf("[SimUART] Load 0x%016lx with %ld byte (>1) \n", addr, len);
         return false;
     }
-
+    addr = addr >> 2;
     *bytes = 0;
 
     switch (addr) {
@@ -140,6 +140,8 @@ bool uart_t::store(reg_t addr, size_t len, const uint8_t* bytes) {
         printf("[SimUART] Store 0x%016lx with %ld byte (>1) \n", addr, len);
         return false;
     }
+
+    addr = addr >> 2;
 
     switch (addr) {
         case UART_THR : // 0
