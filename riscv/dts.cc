@@ -92,17 +92,6 @@ std::string make_dts(size_t insns_per_rtc_tick, size_t cpu_hz,
          "    };\n";
 
 #ifdef ZJV_DEVICE_EXTENSTION
-  reg_t uartbs = UART_BASE;
-  reg_t uartsz = UART_SIZE;
-  s << std::hex <<
-         "    uart@" << UART_BASE << " {\n"
-         "      compatible = \"ns16550a\";\n"
-         "      reg = <0x" << (uartbs >> 32) << " 0x" << (uartbs & (uint32_t)-1) <<
-                     " 0x" << (uartsz >> 32) << " 0x" << (uartsz & (uint32_t)-1) << ">;\n"
-         "      interrupts = <0x1>;\n"
-         "      interrupt-parent = <0x2>;\n"
-         "    };\n";
-
   reg_t plicbs = PLIC_BASE;
   reg_t plicsz = PLIC_SIZE;
   s << std::hex <<
@@ -116,9 +105,32 @@ std::string make_dts(size_t insns_per_rtc_tick, size_t cpu_hz,
          "      reg = <0x" << (plicbs >> 32) << " 0x" << (plicbs & (uint32_t)-1) <<
                      " 0x" << (plicsz >> 32) << " 0x" << (plicsz & (uint32_t)-1) << ">;\n"
          "      interrupts-extended = <" << std::dec;
-  for (size_t i = 0; i < procs.size(); i++)
-    s << "&CPU" << i << "_intc 9 &CPU" << i << "_intc 11 "; 
-  s << std::hex << ">;\n"
+         for (size_t i = 0; i < procs.size(); i++)
+                s << "&CPU" << i << "_intc 9 &CPU" << i << "_intc 11 "; 
+         s << std::hex << ">;\n"
+         "    };\n";
+
+  reg_t uartbs = UART_BASE;
+  reg_t uartsz = UART_SIZE;
+  s << std::hex <<
+         "    uart@" << UART_BASE << " {\n"
+         "      compatible = \"ns16550a\";\n"
+         "      reg = <0x" << (uartbs >> 32) << " 0x" << (uartbs & (uint32_t)-1) <<
+                     " 0x" << (uartsz >> 32) << " 0x" << (uartsz & (uint32_t)-1) << ">;\n"
+         "      interrupts = <0x" << PLIC_UART_IRQ << ">;\n"
+         "      interrupt-parent = <0x2>;\n"
+         "    };\n";
+
+  reg_t sdhcbs = SDHC_BASE;
+  reg_t sdhcsz = SDHC_SIZE;
+  s << std::hex <<
+         "    mmc@" << SDHC_BASE << " {\n"
+         "      compatible = \"samsung,s3c6410-sdhci\";\n"
+         "      reg = <0x" << (sdhcbs >> 32) << " 0x" << (sdhcbs & (uint32_t)-1) <<
+                     " 0x" << (sdhcsz >> 32) << " 0x" << (sdhcsz & (uint32_t)-1) << ">;\n"
+         "      non-removable;\n"
+         "      interrupts = <0x" << PLIC_SDHC_IRQ << ">;\n"
+         "      interrupt-parent = <0x2>;\n"
          "    };\n";
 #endif
   s << std::hex <<
