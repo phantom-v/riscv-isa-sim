@@ -5,16 +5,20 @@
 
 sdhc_t::sdhc_t(plic_t* plic, std::string image_path) : plic(plic) {
     sdcard.open(image_path);
-    if (sdcard.is_open())
-        printf("[SimSDHC] mount a SD card %s\n", image_path.c_str());
+    if (sdcard.is_open()) {
+        sdcard_cur = 0;
+        sdcard_cap = sdcard.seekg(0, std::ios::end).tellg();
+        printf("[SimSDHC] mount a SD card %s [%fKB]\n", image_path.c_str(), sdcard_cap/1024.0); 
+    }
 
     reset();
 }
 
 sdhc_t::~sdhc_t() {
     sdcard.close();
-    if (!sdcard.is_open()) 
+    if (!sdcard.is_open()) {
         printf("[SimSDHC] unmount a SD card\n");
+    }
 }
 
 void sdhc_t::reset() {
@@ -162,6 +166,7 @@ bool sdhc_t::load(reg_t addr, size_t len, uint8_t* bytes) {
             reg_t rsp = 0;
             if ((sdhc_prnstate & SDHC_PRNSTATE_RBUF_EN) == 0) {
                 printf("[SimSDHC] buffer not ready now!");
+                goto error;
             } else {
                 for(unsigned int i = 0; i < 4; i++) 
                     rsp |= buffer[bufptr++] << (8*i);
@@ -180,9 +185,15 @@ bool sdhc_t::load(reg_t addr, size_t len, uint8_t* bytes) {
                                 sdhc_norintsts |= SDHC_NORINT_TRSCMP;
                             }
                             check_int();
-                    } else {
-                        read_block_from_card();
+                    } else if ((sdcard_cur + 2 * SDHC_BLKLEN) <= sdcard_cap) {
+                        sdcard_cur += SDHC_BLKLEN;
+                        sdcard.seekg(sdcard_cur, std::ios::beg);
+                        sdcard.read((char*)buffer, SDHC_BLKLEN);
                         sdhc_prnstate |= SDHC_PRNSTATE_RBUF_EN; 
+                    } else {
+                        error:
+                            printf("[simSDHC] unknown case happens\n");
+                            return false;
                     }
                 }
             }
@@ -235,6 +246,8 @@ bool sdhc_t::load(reg_t addr, size_t len, uint8_t* bytes) {
             sdhc_read(sdhc_version);
             break;
     }
+
+    return true;
 }
 #undef sdhc_read
 
@@ -302,5 +315,7 @@ bool sdhc_t::store(reg_t addr, size_t len, const uint8_t* bytes) {
             sdhc_write(sdhc_errintsigen);
             break;
     }
+
+    return true;
 }
 #undef sdhc_write

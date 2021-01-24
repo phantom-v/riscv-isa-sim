@@ -155,10 +155,14 @@ class sdhc_t : public abstract_device_t {
 
    private:
     plic_t* plic;
-    std::ifstream sdcard;
 
+    reg_t sdcard_cur;
+    reg_t sdcard_cap;
+    std::fstream sdcard;
+
+    #define SDHC_BLKLEN 512
     unsigned short bufptr;
-    unsigned char  buffer[514];
+    unsigned char  buffer[SDHC_BLKLEN + 2];
 
     unsigned int sdhc_sysaddr;            // 0x00
     unsigned short int sdhc_blksize;      // 0x04
