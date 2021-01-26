@@ -154,6 +154,7 @@ class sdhc_t : public abstract_device_t {
     void reset();
 
    private:
+    bool handle_cmd();
     plic_t* plic;
 
     reg_t sdcard_cur;

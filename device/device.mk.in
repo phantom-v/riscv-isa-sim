@@ -1,0 +1,4 @@
+device_subproject_deps = \
+device_srcs = \
+device_CFLAGS = -fPIC
+device_install_shared_lib = yes
