@@ -104,6 +104,9 @@ sim_t::sim_t(const char* isa, const char* priv, const char* varch,
 
   uart.reset(new uart_t(plic.get(), diffTest, uart_fifo));
   bus.add_device(UART_BASE, uart.get());
+
+  sdhc.reset(new sdhc_t(plic.get(), "sdcard.img"));
+  bus.add_device(SDHC_BASE, sdhc.get());
 #endif
 
   for (size_t i = 0; i < nprocs; i++) {
