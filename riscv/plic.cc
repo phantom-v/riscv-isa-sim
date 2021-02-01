@@ -94,6 +94,7 @@ bool plic_t::load(reg_t addr, size_t len, uint8_t* bytes) {
     } else {
     err:
         printf("[SimPLIC] read unknown addr %lx with %ld\n", addr, len);
+        printf("\t pc = %lx\n", procs[0]->state.pc);
         return false;
     }
     return true;
@@ -131,7 +132,7 @@ bool plic_t::store(reg_t addr, size_t len, const uint8_t* bytes) {
             goto err;
     } else {
     err:
-        printf("[SimPLIC] write unknown addr %lx with %ld: %ld\n", addr, len, *(long*)bytes);
+        printf("[SimPLIC] write unknown addr %lx ~ %ld: %lx\n", addr, len, *(long*)bytes);
         return false;
     }
 
