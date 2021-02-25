@@ -42,7 +42,7 @@ void sdhc_t::reset() {
     sdhc_errintsigen = 0;
 
     // Don't support DMA, High Speed Mode, Suspend/Resume
-    // Suport 1.8/33.V, maximum block size is 512 byte
+    // Suport 1.8/3.3V, maximum block size is 512 byte
     sdhc_capab = 0x05000080;
     sdhc_maxcurcap = 0;
 
@@ -50,7 +50,17 @@ void sdhc_t::reset() {
     sdhc_version = 0x0401;
 }
 
+
 void sdhc_t::check_int() {
+    if (sdhc_norintsts) {
+        plic->plic_irq(PLIC_SDHC_IRQ, true);
+        // printf("[SimSDHC] SDHC interrupt up %x\n", sdhc_norintsts);
+    }
+    else {
+        plic->plic_irq(PLIC_SDHC_IRQ, false);
+    }
+
+    return;       
 }
 
 // Register Map
@@ -171,7 +181,7 @@ bool sdhc_t::handle_cmd() {
 
 
 #define sdhc_read(reg)          \
-    assert(sizeof(reg) == len); \
+    assert(sizeof(reg) >= len); \
     memcpy(bytes, &reg, len);
 
 bool sdhc_t::load(reg_t addr, size_t len, uint8_t* bytes) {
@@ -266,19 +276,40 @@ bool sdhc_t::load(reg_t addr, size_t len, uint8_t* bytes) {
             sdhc_read(sdhc_sftrst);
             break;
         case SDHC_NORINTSTS:
-            sdhc_read(sdhc_norintsts);
+            if (sizeof(sdhc_norintsts) * 2 == len) {
+                unsigned int tmp;
+                tmp = (sdhc_errintsts << 16) | sdhc_norintsts;
+                sdhc_read(tmp);
+            }
+            else {
+                sdhc_read(sdhc_norintsts);
+            }
             break;
         case SDHC_ERRINTSTS:
             sdhc_read(sdhc_errintsts);
             break;
         case SDHC_NORINTSTSEN:
-            sdhc_read(sdhc_norintstsen);
+            if (sizeof(sdhc_norintstsen) * 2 == len) {
+                unsigned int tmp;
+                tmp = (sdhc_errintstsen << 16) | sdhc_norintstsen;
+                sdhc_read(tmp);
+            }
+            else {
+                sdhc_read(sdhc_norintstsen);
+            }
             break;
         case SDHC_ERRINTSTSEN:
             sdhc_read(sdhc_errintstsen);
             break;
         case SDHC_NORINTSIGEN:
-            sdhc_read(sdhc_norintsigen);
+            if (sizeof(sdhc_norintsigen) * 2 == len) {
+                unsigned int tmp;
+                tmp = (sdhc_errintsigen << 16) | sdhc_norintsigen;
+                sdhc_read(tmp);
+            }
+            else {
+                sdhc_read(sdhc_norintsigen);
+            }
             break;
         case SDHC_ERRINTSIGEN:
             sdhc_read(sdhc_errintsigen);
@@ -292,14 +323,23 @@ bool sdhc_t::load(reg_t addr, size_t len, uint8_t* bytes) {
         case SDHC_VERSION:
             sdhc_read(sdhc_version);
             break;
+        default:
+            printf("[SimSDHC] Load from illegal address 0x%016lx\n", addr + SDHC_BASE);
+            return false;
     }
+
+    printf("[SimSDHC] read %lx with %ld: \n", addr, len);
+    for (int i = 0; i < len; i++) {
+        printf("%02x ", *(bytes+i));
+    }
+    printf("\n");
 
     return true;
 }
 #undef sdhc_read
 
 #define sdhc_write(reg)         \
-    assert(sizeof(reg) == len); \
+    assert(sizeof(reg) >= len); \
     memcpy(&reg, bytes, len);
 
 bool sdhc_t::store(reg_t addr, size_t len, const uint8_t* bytes) {
@@ -307,6 +347,13 @@ bool sdhc_t::store(reg_t addr, size_t len, const uint8_t* bytes) {
         printf("[SimSDHC] no SD card to write\n");
         return false;
     }
+
+    printf("[SimSDHC] store %lx with %ld: \n", addr, len);
+    for (int i = 0; i < len; i++) {
+        printf("%02x ", *(bytes+i));
+    }
+    printf("\n");
+
     switch (addr) {
         case SDHC_SYSADDR:
             sdhc_write(sdhc_sysaddr);
@@ -375,7 +422,6 @@ bool sdhc_t::store(reg_t addr, size_t len, const uint8_t* bytes) {
                         printf("[simSDHC] unknown case happens\n");
                     }                    
                 }
-
             }
 
             break;
@@ -414,9 +460,17 @@ bool sdhc_t::store(reg_t addr, size_t len, const uint8_t* bytes) {
             break;
         case SDHC_NORINTSTS:
         {
-            unsigned short int sdhc_norintsts_mask = 0;
-            sdhc_write(sdhc_norintsts_mask);
-            sdhc_norintsts &= ~sdhc_norintsts_mask;
+            if (sizeof(sdhc_norintsts) * 2 == len) {
+                unsigned int sdhc_norintsts_mask32 = 0;
+                sdhc_write(sdhc_norintsts_mask32);
+                sdhc_norintsts &= (unsigned short int)~sdhc_norintsts_mask32;
+                sdhc_errintsts &= (unsigned short int)~(sdhc_norintsts_mask32 >> 16);
+            }
+            else {
+                unsigned short int sdhc_norintsts_mask = 0;
+                sdhc_write(sdhc_norintsts_mask);
+                sdhc_norintsts &= ~sdhc_norintsts_mask;
+            }
         
             check_int();
         
@@ -437,17 +491,37 @@ bool sdhc_t::store(reg_t addr, size_t len, const uint8_t* bytes) {
         }
 
         case SDHC_NORINTSTSEN:
-            sdhc_write(sdhc_norintstsen);
+            if (sizeof(sdhc_norintstsen) * 2 == len) {
+                unsigned int tmp;
+                sdhc_write(tmp);
+                sdhc_norintstsen = (unsigned short int)tmp;
+                sdhc_errintstsen = (unsigned short int)(tmp >> 16);
+            }
+            else {
+                sdhc_write(sdhc_norintstsen);
+            }
             break;
         case SDHC_ERRINTSTSEN:
             sdhc_write(sdhc_errintstsen);
             break;
+
         case SDHC_NORINTSIGEN:
-            sdhc_write(sdhc_norintsigen);
+            if (sizeof(sdhc_norintsigen) * 2 == len) {
+                unsigned int tmp;
+                sdhc_write(tmp);
+                sdhc_norintsigen = (unsigned short int)tmp;
+                sdhc_errintsigen = (unsigned short int)(tmp >> 16);
+            }
+            else {
+                sdhc_write(sdhc_norintsigen);
+            }
             break;
         case SDHC_ERRINTSIGEN:
             sdhc_write(sdhc_errintsigen);
             break;
+        default:
+            printf("[SimSDHC] Store to illegal address 0x%016lx\n", addr + SDHC_BASE);
+            return false;
     }
 
     return true;

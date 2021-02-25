@@ -10,10 +10,10 @@
   Hart: At any time, a RISC-V hardware thread (hart) is running at some privilege level 
         encoded as a mode in one or more CSRs (control and status registers).
 
-  Context:  A hart context is a privilege mode in a hardware execution thread. For example, 
-            in an 4 core system with 2-way Simultaneous multithreading (SMT), you have 
-            8 harts and probably at least two privilege modes per hart; machine mode 
-            and supervisor mode.
+  Context: A hart context is a privilege mode in a hardware execution thread. For example, 
+           in an 4 core system with 2-way Simultaneous multithreading (SMT), you have 
+           8 harts and probably at least two privilege modes per hart; machine mode 
+           and supervisor mode.
 */
 
 plic_t::plic_t(std::vector<processor_t*>& procs, size_t num_source, size_t num_context) 
@@ -97,11 +97,24 @@ bool plic_t::load(reg_t addr, size_t len, uint8_t* bytes) {
         printf("\t pc = %lx\n", procs[0]->state.pc);
         return false;
     }
+
+    // printf("[SimPLIC] read %lx with %ld: \n", addr, len);
+    // for (int i = 0; i < len; i++) {
+    //     printf("%02x ", *(bytes+i));
+    // }
+    // printf("\n");
+
     return true;
 }
 
 bool plic_t::store(reg_t addr, size_t len, const uint8_t* bytes) {
     if (len != sizeof(plic_reg_t)) goto err;
+
+    // printf("[SimPLIC] store %lx with %ld: \n", addr, len);
+    // for (int i = 0; i < len; i++) {
+    //     printf("%02x ", *(bytes+i));
+    // }
+    // printf("\n");
 
     if (addr > PLIC_PRIO_BASE && addr <= PLIC_PRIO_BASE + (num_source << 2)) {
         memcpy((uint8_t*)&priority[(addr - PLIC_PRIO_BASE) >> 2], bytes, len);
@@ -182,16 +195,24 @@ void plic_t::plic_update() {
         bool ip = plic_int_check(i);
         switch (context[i].mode) {
             case 'M':
-                if (ip)
+                if (ip) {
                     procs[context[i].hartid]->get_state()->mip |= MIP_MEIP;
-                else
+                    // printf("[SimPLIC] %d machine external interrupt\n", context[i].hartid);
+                }
+                else {
                     procs[context[i].hartid]->get_state()->mip &= ~MIP_MEIP;
+                }
+                    
                 break;
             case 'S':
-                if (ip)
+                if (ip) {
                     procs[context[i].hartid]->get_state()->mip |= MIP_SEIP;
-                else
+                    // printf("[SimPLIC] %d supervisor external interrupt\n", context[i].hartid);
+                }
+                else {
                     procs[context[i].hartid]->get_state()->mip &= ~MIP_SEIP;
+                }
+                    
                 break;
             default:
                 break;

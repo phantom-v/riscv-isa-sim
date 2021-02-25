@@ -143,7 +143,10 @@ bool uart_t::store(reg_t addr, size_t len, const uint8_t* bytes) {
             if (uart_lcr & UART_LCR_DLAB)
                 memcpy(&uart_dll, bytes, len);
             else {
-                fprintf(stdout, "\x1b[34m%c\x1b[0m", *bytes);
+                if (diffTest)
+                    fprintf(stdout, "\x1b[34m%c\x1b[0m", *bytes);
+                else 
+                    fprintf(stdout, "%c", *bytes);
                 fflush(stdout);
             }
             break;

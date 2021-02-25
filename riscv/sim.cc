@@ -165,6 +165,7 @@ void sim_t::step(size_t n, bool check_int)
 
 #ifdef ZJV_DEVICE_EXTENSTION 
     uart.get()->check_int();
+    sdhc.get()->check_int();
 #endif
 
     if (!diffTest) {
