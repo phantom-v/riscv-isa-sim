@@ -16,6 +16,10 @@
 #include <memory>
 #include <sys/types.h>
 
+#ifdef ZJV_DEVICE_EXTENSTION  
+  #include "soc.h"
+#endif
+
 // TO DELETE
 #include <iostream>
 #include <stdlib.h>

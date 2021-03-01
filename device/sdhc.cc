@@ -1,5 +1,6 @@
-#include "devices.h"
-#include "processor.h"
+#include <cassert>
+
+#include "soc.h"
 
 // Based on samsung s3c6410 soc
 
@@ -160,6 +161,8 @@ void sdhc_t::check_int() {
 bool sdhc_t::handle_cmd() {
     unsigned char opcode = (sdhc_cmd & SDHC_CMD_IDX_MASK) >> SDHC_CMD_IDX_SHIFT;
 
+    printf("[SimSDCard] Handling SD Card Command %d ...\n", opcode);
+
     if (opcode == 17 || opcode == 18) {
         // CMD17 READ_SINGLE_BLOCK, CMD18 READ_MULTIPLE_BLOCK
         sdcard.seekg(sdhc_arg, std::ios::beg);
@@ -176,11 +179,15 @@ bool sdhc_t::handle_cmd() {
         sdhc_norintsts |= SDHC_NORINT_WBUFRDY;
     }
 
+    else {
+        // printf("[SimSDCard] Unknow SD Card Command %d\n", opcode);
+    }
+
     return true;
 }
 
 
-#define sdhc_read(reg)          \
+#define sdhc_read(reg)  \
     assert(sizeof(reg) >= len); \
     memcpy(bytes, &reg, len);
 
@@ -324,15 +331,15 @@ bool sdhc_t::load(reg_t addr, size_t len, uint8_t* bytes) {
             sdhc_read(sdhc_version);
             break;
         default:
-            printf("[SimSDHC] Load from illegal address 0x%016lx\n", addr + SDHC_BASE);
+            printf("[SimSDHC] Load from illegal address 0x%016lx ~ %ld\n", addr + SDHC_BASE, len);
             return false;
     }
 
-    printf("[SimSDHC] read %lx with %ld: \n", addr, len);
-    for (int i = 0; i < len; i++) {
-        printf("%02x ", *(bytes+i));
-    }
-    printf("\n");
+    // printf("[SimSDHC] read %lx with %ld: \n", addr, len);
+    // for (int i = 0; i < len; i++) {
+    //     printf("%02x ", *(bytes+i));
+    // }
+    // printf("\n");
 
     return true;
 }
@@ -348,11 +355,11 @@ bool sdhc_t::store(reg_t addr, size_t len, const uint8_t* bytes) {
         return false;
     }
 
-    printf("[SimSDHC] store %lx with %ld: \n", addr, len);
-    for (int i = 0; i < len; i++) {
-        printf("%02x ", *(bytes+i));
-    }
-    printf("\n");
+    // printf("[SimSDHC] store %lx with %ld: \n", addr, len);
+    // for (int i = 0; i < len; i++) {
+    //     printf("%02x ", *(bytes+i));
+    // }
+    // printf("\n");
 
     switch (addr) {
         case SDHC_SYSADDR:
@@ -520,7 +527,7 @@ bool sdhc_t::store(reg_t addr, size_t len, const uint8_t* bytes) {
             sdhc_write(sdhc_errintsigen);
             break;
         default:
-            printf("[SimSDHC] Store to illegal address 0x%016lx\n", addr + SDHC_BASE);
+            printf("[SimSDHC] Store to illegal address 0x%016lx ~ %ld\n", addr + SDHC_BASE, len);
             return false;
     }
 

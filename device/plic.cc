@@ -1,5 +1,5 @@
-#include "devices.h"
 #include "processor.h"
+#include "soc.h"
 
 /* 
   Some Concepts:  

@@ -1,8 +1,7 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
-#include "devices.h"
-#include "processor.h"
+#include "soc.h"
 
 uart_t::uart_t(plic_t* plic, bool diffTest, std::string file_path) : diffTest(diffTest), plic(plic) {
     file_fifo.open(file_path);

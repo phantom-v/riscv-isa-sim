@@ -1,4 +1,17 @@
 device_subproject_deps = \
-device_srcs = \
+    riscv
+
+device_hdrs = \
+    uart.h \
+    plic.h \
+    sdhc.h \
+    sdcard.h
+
 device_CFLAGS = -fPIC
-device_install_shared_lib = yes
+
+device_srcs = \
+    uart.cc \
+    plic.cc \
+    sdhc.cc \
+    sdcard.cc
+

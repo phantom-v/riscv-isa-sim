@@ -106,7 +106,7 @@ std::string make_dts(size_t insns_per_rtc_tick, size_t cpu_hz,
                      " 0x" << (plicsz >> 32) << " 0x" << (plicsz & (uint32_t)-1) << ">;\n"
          "      interrupts-extended = <" << std::dec;
          for (size_t i = 0; i < procs.size(); i++)
-                s << "&CPU" << i << "_intc 9 &CPU" << i << "_intc 11 "; 
+                s << "&CPU" << i << "_intc 11 &CPU" << i << "_intc 9 "; 
          s << std::hex << ">;\n"
          "    };\n";
 
