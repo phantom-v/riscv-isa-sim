@@ -626,7 +626,7 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 subprojects_enabled
 subprojects
-zjv_device_extension
+enable_zjv_device
 HAVE_INT128
 INSTALL_DATA
 INSTALL_SCRIPT
@@ -4962,22 +4962,6 @@ $as_echo "#define RISCV_ENABLE_MISALIGNED /**/" >>confdefs.h
 
 fi
 
-# Check whether --enable-zjv-device was given.
-if test "${enable_zjv_device+set}" = set; then :
-  enableval=$enable_zjv_device;
-fi
-
-if test "x$enable_zjv_device" = "xyes"; then :
-
-
-$as_echo "#define ZJV_DEVICE_EXTENSION /**/" >>confdefs.h
-
-  zjv_device_extension=yes
-
-
-fi
-
-
 
 
 
@@ -5314,6 +5298,22 @@ _ACEOF
 
 else
   as_fn_error $? "libpthread is required" "$LINENO" 5
+fi
+
+
+# Check whether --enable-zjv-device was given.
+if test "${enable_zjv_device+set}" = set; then :
+  enableval=$enable_zjv_device;
+fi
+
+if test "x$enable_zjv_device" = "xyes"; then :
+
+
+$as_echo "#define ZJV_DEVICE_EXTENSION /**/" >>confdefs.h
+
+  enable_zjv_device=yes
+
+
 fi
 
 

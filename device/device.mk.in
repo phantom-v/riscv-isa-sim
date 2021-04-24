@@ -1,18 +1,20 @@
 device_subproject_deps = \
-    riscv
 
 device_hdrs = \
     uart.h \
     plic.h \
     sdhc.h
 
-device_CFLAGS = -fPIC
+riscv_zjv_device_extension = \
 
-device_srcs = \
-
-ifeq ($(zjv_device_extension),yes)
+ifeq ($(enable_zjv_device),yes)
 riscv_zjv_device_extension += \
 	uart.cc \
-	plic.cc
+	plic.cc \
+    sdhc.cc
 endif
 
+device_srcs = \
+    $(riscv_zjv_device_extension)
+
+device_CFLAGS = -fPIC

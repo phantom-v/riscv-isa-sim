@@ -17,7 +17,7 @@
 #include <sys/types.h>
 
 #ifdef ZJV_DEVICE_EXTENSION  
-  #include "soc.h"
+  #include "device/soc.h"
 #endif
 
 // TO DELETE
