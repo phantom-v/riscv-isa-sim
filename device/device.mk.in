@@ -4,14 +4,15 @@ device_subproject_deps = \
 device_hdrs = \
     uart.h \
     plic.h \
-    sdhc.h \
-    sdcard.h
+    sdhc.h
 
 device_CFLAGS = -fPIC
 
 device_srcs = \
-    uart.cc \
-    plic.cc \
-    sdhc.cc \
-    sdcard.cc
+
+ifeq ($(zjv_device_extension),yes)
+riscv_zjv_device_extension += \
+	uart.cc \
+	plic.cc
+endif
 

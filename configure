@@ -626,6 +626,7 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 subprojects_enabled
 subprojects
+zjv_device_extension
 HAVE_INT128
 INSTALL_DATA
 INSTALL_SCRIPT
@@ -4969,7 +4970,9 @@ fi
 if test "x$enable_zjv_device" = "xyes"; then :
 
 
-$as_echo "#define ZJV_DEVICE_EXTENSTION /**/" >>confdefs.h
+$as_echo "#define ZJV_DEVICE_EXTENSION /**/" >>confdefs.h
+
+  zjv_device_extension=yes
 
 
 fi
@@ -5356,6 +5359,8 @@ ac_config_files="$ac_config_files riscv-customext.pc"
 ac_config_files="$ac_config_files riscv-fdt.pc"
 
 ac_config_files="$ac_config_files riscv-spike_main.pc"
+
+ac_config_files="$ac_config_files riscv-device.pc"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -6064,6 +6069,7 @@ do
     "riscv-customext.pc") CONFIG_FILES="$CONFIG_FILES riscv-customext.pc" ;;
     "riscv-fdt.pc") CONFIG_FILES="$CONFIG_FILES riscv-fdt.pc" ;;
     "riscv-spike_main.pc") CONFIG_FILES="$CONFIG_FILES riscv-spike_main.pc" ;;
+    "riscv-device.pc") CONFIG_FILES="$CONFIG_FILES riscv-device.pc" ;;
 
   *) as_fn_error $? "invalid argument: \`$ac_config_target'" "$LINENO" 5;;
   esac

@@ -122,4 +122,5 @@ AC_CONFIG_FILES([riscv-softfloat.pc])
 AC_CONFIG_FILES([riscv-customext.pc])
 AC_CONFIG_FILES([riscv-fdt.pc])
 AC_CONFIG_FILES([riscv-spike_main.pc])
+AC_CONFIG_FILES([riscv-device.pc])
 AC_OUTPUT

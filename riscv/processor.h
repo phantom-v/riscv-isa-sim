@@ -451,7 +451,7 @@ private:
 
   friend class mmu_t;
   friend class clint_t;
-#ifdef ZJV_DEVICE_EXTENSTION
+#ifdef ZJV_DEVICE_EXTENSION
   friend class plic_t;
 #endif
   friend class extension_t;

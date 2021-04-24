@@ -88,7 +88,7 @@ class clint_t : public abstract_device_t {
     std::vector<mtimecmp_t> mtimecmp;
 };
 
-#ifdef ZJV_DEVICE_EXTENSTION
+#ifdef ZJV_DEVICE_EXTENSION
 
 
 

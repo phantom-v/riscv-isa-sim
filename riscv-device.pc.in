@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@prefix@
+libdir=${prefix}/@libdir@
+includedir=${prefix}/@includedir@
+
+Name: riscv-device
+Description: RISC-V Spike device extension
+Version: git
+Libs: -Wl,-rpath,${libdir} -L${libdir} -ldevice
+Cflags: -I${includedir}
+URL: http://riscv.org/download.html#tab_spike
